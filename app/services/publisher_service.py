@@ -1,4 +1,4 @@
-from app.schemas import Request_Model, Response_Model, Result_Model 
+from app.schemas import Request_DTO, Platform_Result, Response_DTO 
 from datetime import date, time, datetime, timezone
 
 
@@ -7,18 +7,17 @@ class PublisherService:
     def __init__(self):
        self.one = 1 
         
-    def publish_message(self,request:               Request_Model):
+    def publish_message(self,request:               Request_DTO):
         try :
-            result = Result_Model(
+            result = Platform_Result.success(
                 platform="bluesky",
-                status="success",
-                posted_url=None,
+                        posted_url="https://example.com/post",
                 public_access=True,
                 date=date.today(),
                 time=datetime.now(timezone.utc),
                 error=None
             )
-            response = Response_Model(success=True,   
+            response = Response_DTO(success=True,   
                                     results=[result])
             return response
         except Exception as e:
