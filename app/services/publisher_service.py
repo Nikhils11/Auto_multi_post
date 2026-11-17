@@ -1,28 +1,22 @@
-from app.schemas import Request_DTO, Platform_Result, Response_DTO 
+from app.schemas import Publish_Response, Request_DTO, Platform_Result, Response_DTO 
 from datetime import date, time, datetime, timezone
-
+from app.platormforms.bluesky import Platform_Bluesky
+import httpx
 
 class PublisherService:
     
     def __init__(self):
        self.one = 1 
         
-    def publish_message(self,request:               Request_DTO):
-        try :
-            result = Platform_Result.success(
-                platform="bluesky",
-                        posted_url="https://example.com/post",
-                public_access=True,
-                date=date.today(),
-                time=datetime.now(timezone.utc),
-                error=None
-            )
-            response = Response_DTO(success=True,   
-                                    results=[result])
-            return response
-        except Exception as e:
-            print(f"Error occurred while publishing message: {e}")
-            pass
-
+    async def publish_message(self,request: Request_DTO) -> Response_DTO:
+        
+        client = httpx.AsyncClient()
+        # breakpoint()
+        platfrom_bluesky_response = await Platform_Bluesky().proccess_request(client, request)
+        
+        # breakpoint()
+        # await client.aclose()
+        return Response_DTO(publish_response=Publish_Response(success=True, results=[platfrom_bluesky_response]))
+       
 
 

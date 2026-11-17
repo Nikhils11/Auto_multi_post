@@ -10,7 +10,7 @@ class Platform_Result(BaseModel):
     status: str
     posted_url: Optional[str] = None
     public_access: Optional[bool] = False
-    date: Optional[date] = None
+    date: Optional[datetime] = None
     time: Optional[datetime] = None
     error: Optional[str] = None
     
