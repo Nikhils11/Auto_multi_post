@@ -40,7 +40,6 @@ class Platform_Result(BaseModel):
 
 class Publish_Response(BaseModel):
     success: bool
-    results: list[Platform_Result]
-    
+    results: Optional[list[Platform_Result]] = None
 class Response_DTO(BaseModel):
     publish_response: Publish_Response
