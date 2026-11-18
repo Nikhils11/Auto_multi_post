@@ -10,8 +10,6 @@ from datetime import datetime, timezone
 class Platform_Bluesky(Platform_Base):
     
     def __init__(self,  config: Config | None = None):
-        self.session_url ="https://bsky.social/xrpc/com.atproto.server.createSession"
-        self.create_record_url = "https://bsky.social/xrpc/com.atproto.repo.createRecord"
         super().__init__("Bluesky")
           
     
@@ -37,13 +35,11 @@ class Platform_Bluesky(Platform_Base):
     async def get_session_token(self, client: httpx.AsyncClient) -> str:
         request_payload = self.build_session_request_payload()
         headers = self.build_base_headers()
-        session_response = await client.post(self.session_url, json=request_payload, headers=headers)
+        session_response = await client.post(self.config.bluesky_session_url, json=request_payload, headers=headers)
         access_jwt = ""
         if session_response.status_code == 200:
             session_data = session_response.json()
             access_jwt = session_data.get("accessJwt")
-        else:
-            raise Exception(f"Failed to create session. Status code: {session_response.status_code}, Response: {session_response.message}")
         return access_jwt
         
     async def proccess_request(self, client: httpx.AsyncClient, request: Request_DTO) -> Platform_Result:
@@ -53,19 +49,18 @@ class Platform_Bluesky(Platform_Base):
                 return Platform_Result.failure(platform=self.platform_name, error="Failed to obtain access token for BlueSky platform.")        
             post_message_reqeust_payload = self.build_post_request_payload(request)        
             post_message_request_headers = self.build_headers_with_auth(access_jwt)
-            post_message_response = await client.post(self.create_record_url, json=post_message_reqeust_payload, headers=post_message_request_headers)
+            post_message_response = await client.post(url=self.config.bluesky_post_url, json=post_message_reqeust_payload, headers=post_message_request_headers)
             if post_message_response.status_code == 200:
                 posted_url = f"https://bsky.app/profile/nikhil200411.bsky.social/post/{post_message_response.json().get('commit')['rev']}"
-                result = Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=True)
-                return result
+                return Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=True)
             else:
                 error_message = f"Failed to post message. Status code: {post_message_response.status_code}, Response: {post_message_response.text}"
-                result = Platform_Result.failure(platform=self.platform_name, error=error_message)
-                return result
+                return Platform_Result.failure(platform=self.platform_name, error=error_message)
         except Exception as e:
-            result = Platform_Result.failure(platform=self.platform_name, error=e.__str__())
-            return result
-            # raise Exception(f"Error occurred while processing request for BlueSky platform: {e}")
+            print(e.__str__())
+            return Platform_Result.failure(platform=self.platform_name, error=e.__str__())
+            
+            
             
         
 

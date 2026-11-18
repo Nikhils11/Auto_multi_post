@@ -20,7 +20,9 @@ class Platfrom_DevTo(Platform_Base):
     def build_request_payload(self, request: Request_DTO) -> dict:
         payload = {
                 "article": {
-                    "title": "  ",
+                    # Over here we can have an LLM call which genrates 
+                    # a unique title for every reqeust based on the request.message
+                    "title": request.message,
                     "published": True,
                     "body_markdown": request.message
                 }
@@ -38,10 +40,9 @@ class Platfrom_DevTo(Platform_Base):
                 result = Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=True)
                 return result
             else:
-                result = Platform_Result.failure(platform=self.platform_name, error=post_message_response.error)
-                return result
+                return Platform_Result.failure(platform=self.platform_name, error=post_message_response.error)
         except Exception as e:
-            result = Platform_Result.failure(platform=self.platform_name, error=e.__str__())
-            return result
+            print(e.__str__())
+            return Platform_Result.failure(platform=self.platform_name, error=e.__str__())
             
     

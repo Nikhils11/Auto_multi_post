@@ -28,12 +28,11 @@ class Platform_Gist(Platform_Base):
             if (post_request_response.status_code == 201):
                response_json = post_request_response.json()
                posted_url = response_json.get('html_url')
-               result = Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=response_json.get('public')) 
-            #    breakpoint()
+               result = Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=response_json.get('public'))
                return result
             else :
-                result = Platform_Result.failure(self.platform_name, error=post_request_response.error)
-                return result
+                return Platform_Result.failure(self.platform_name, error=post_request_response.error)
         except Exception as e:
-            result = Platform_Result.failure(self.platform_name, error=e.__str__())
-            return result
+            print(e.__str__())
+            return Platform_Result.failure(self.platform_name, error=e.__str__())
+            
