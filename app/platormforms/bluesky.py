@@ -12,16 +12,14 @@ class Platform_Bluesky(Platform_Base):
     def __init__(self,  config: Config | None = None):
         self.session_url ="https://bsky.social/xrpc/com.atproto.server.createSession"
         self.create_record_url = "https://bsky.social/xrpc/com.atproto.repo.createRecord"
-        self.platform_name = "bluesky"
-        self.config = get_config()    
+        super().__init__("Bluesky")
+          
     
     def build_session_request_payload(self) -> dict:
-        # breakpoint()
         payload = {
             "identifier": self.config.bluesky_username,
             "password": self.config.bluesky_password,
         }
-        # breakpoint()
         return payload
     
     def build_post_request_payload(self, request: Request_DTO) -> dict:
@@ -35,26 +33,11 @@ class Platform_Bluesky(Platform_Base):
             }
         }
         return payload
-
-    def build_message_post_request_headers(self, access_jwt: str) -> dict:
-        headers = {
-            "Authorization": f"Bearer {access_jwt}",
-            "Content-Type" : "application/json"
-        }
-        return headers
-    
-    def build_session_token_request_headers(self) -> dict:
-        headers = {
-            "Content-Type": "application/json"
-        }
-        return headers
     
     async def get_session_token(self, client: httpx.AsyncClient) -> str:
         request_payload = self.build_session_request_payload()
-        headers = self.build_session_token_request_headers()
-        # breakpoint()
+        headers = self.build_base_headers()
         session_response = await client.post(self.session_url, json=request_payload, headers=headers)
-        # breakpoint()
         access_jwt = ""
         if session_response.status_code == 200:
             session_data = session_response.json()
@@ -69,12 +52,11 @@ class Platform_Bluesky(Platform_Base):
             if (access_jwt == ""):
                 return Platform_Result.failure(platform=self.platform_name, error="Failed to obtain access token for BlueSky platform.")        
             post_message_reqeust_payload = self.build_post_request_payload(request)        
-            post_message_request_headers = self.build_message_post_request_headers(access_jwt)
+            post_message_request_headers = self.build_headers_with_auth(access_jwt)
             post_message_response = await client.post(self.create_record_url, json=post_message_reqeust_payload, headers=post_message_request_headers)
             if post_message_response.status_code == 200:
                 posted_url = f"https://bsky.app/profile/nikhil200411.bsky.social/post/{post_message_response.json().get('commit')['rev']}"
                 result = Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=True)
-                breakpoint()
                 return result
             else:
                 error_message = f"Failed to post message. Status code: {post_message_response.status_code}, Response: {post_message_response.text}"
