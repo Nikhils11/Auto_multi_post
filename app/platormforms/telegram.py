@@ -31,7 +31,7 @@ class Platform_Telegram(Platform_Base):
               posted_url = f"{self.config.telegram_channel_url}{response_json.get('result')["message_id"]}"
               return Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=True)
           else:
-              return Platform_Result.failure(platform=self.platform_name, error=post_reqeust_response.error)
+              return Platform_Result.failure(platform=self.platform_name, error=post_reqeust_response.text)
         except Exception as e:
             print(e.__str__())
             return Platform_Result.failure(platform=self.platform_name, error=e.__str__())

@@ -4,7 +4,7 @@ import httpx
 from app.platormforms.base import Platform_Base
 
 
-class Platfrom_DevTo(Platform_Base):
+class Platform_DevTo(Platform_Base):
     
     def __init__(self, config : Config | None = None):
         super().__init__("Dev.To")
@@ -22,14 +22,17 @@ class Platfrom_DevTo(Platform_Base):
                 "article": {
                     # Over here we can have an LLM call which genrates 
                     # a unique title for every reqeust based on the request.message
-                    "title": request.message,
+                    # For now i am just keeping this title as the project name
+                    # ttile can not be empty and using the reqeust.message would
+                    # be not a good idea
+                    "title": "Auto_multi_post",
                     "published": True,
                     "body_markdown": request.message
                 }
             }
         return payload
     
-    async def porcess_request(self, client : httpx.AsyncClient, request : Request_DTO) -> Platform_Result:
+    async def proccess_request(self, client : httpx.AsyncClient, request : Request_DTO) -> Platform_Result:
         try:
             headers = self.build_post_message_headers()
             request_payload = self.build_request_payload(request)
@@ -40,7 +43,7 @@ class Platfrom_DevTo(Platform_Base):
                 result = Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=True)
                 return result
             else:
-                return Platform_Result.failure(platform=self.platform_name, error=post_message_response.error)
+                return Platform_Result.failure(platform=self.platform_name, error=post_message_response.text)
         except Exception as e:
             print(e.__str__())
             return Platform_Result.failure(platform=self.platform_name, error=e.__str__())

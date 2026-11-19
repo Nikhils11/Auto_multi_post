@@ -51,7 +51,13 @@ class Platform_Bluesky(Platform_Base):
             post_message_request_headers = self.build_headers_with_auth(access_jwt)
             post_message_response = await client.post(url=self.config.bluesky_post_url, json=post_message_reqeust_payload, headers=post_message_request_headers)
             if post_message_response.status_code == 200:
-                posted_url = f"https://bsky.app/profile/nikhil200411.bsky.social/post/{post_message_response.json().get('commit')['rev']}"
+                response_data = post_message_response.json()
+                record_uri = response_data.get("uri", "")
+                uri_parts = record_uri.removeprefix("at://").split("/")
+                posted_url = None
+                if len(uri_parts) == 3 and all(uri_parts):
+                    record_key = uri_parts[-1]
+                    posted_url = f"{self.config.bluesky_message_url.rstrip('/')}/{record_key}"
                 return Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=True)
             else:
                 error_message = f"Failed to post message. Status code: {post_message_response.status_code}, Response: {post_message_response.text}"
@@ -63,4 +69,3 @@ class Platform_Bluesky(Platform_Base):
             
             
         
-

@@ -12,6 +12,7 @@ class Config(BaseSettings):
     bluesky_did: str    
     bluesky_session_url: str
     bluesky_post_url: str
+    bluesky_message_url: str
     mastodon_username: str
     mastodon_access_token: str      
     mastodon_post_url: str
