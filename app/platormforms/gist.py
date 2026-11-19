@@ -31,7 +31,7 @@ class Platform_Gist(Platform_Base):
                result = Platform_Result.success(platform=self.platform_name, posted_url=posted_url, public_access=response_json.get('public'))
                return result
             else :
-                return Platform_Result.failure(self.platform_name, error=post_request_response.error)
+                return Platform_Result.failure(self.platform_name, error=post_request_response.text)
         except Exception as e:
             print(e.__str__())
             return Platform_Result.failure(self.platform_name, error=e.__str__())

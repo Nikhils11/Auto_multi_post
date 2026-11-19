@@ -1,8 +1,8 @@
 from __future__ import annotations
-
 from app.config import Config, get_config 
-from app.schemas import Request_DTO, Platform_Result, Response_DTO
+from app.schemas import Request_DTO, Platform_Result
 import httpx
+
 
 class Platform_Base:
             
